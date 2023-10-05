@@ -1,6 +1,16 @@
-import React from 'react'
+import React from 'react';
+import { connect } from 'react-redux';
+import { moveClockwise, moveCounterClockwise } from '../state/action-creators'
 
-export default function Wheel(props) {
+function Wheel(props) {
+  const handleClockwise = () => {
+    props.moveClockwise()
+  };
+
+  const handleCounterClockwise = () => {
+    props.moveCounterClockwise()
+  };
+
   return (
     <div id="wrapper">
       <div id="wheel">
@@ -12,9 +22,28 @@ export default function Wheel(props) {
         <div className="cog" style={{ "--i": 5 }}></div>{/* --i is a custom CSS property, no need to touch that nor the style object */}
       </div>
       <div id="keypad">
-        <button id="counterClockwiseBtn" >Counter clockwise</button>
-        <button id="clockwiseBtn">Clockwise</button>
+        <button 
+          id="counterClockwiseBtn" 
+          onClick={handleCounterClockwise}
+        >
+          Counter clockwise
+        </button>
+
+        <button 
+          id="clockwiseBtn" 
+          onClick={handleClockwise}
+        >
+          Clockwise
+        </button>
+
       </div>
     </div>
   )
 }
+
+const mapDispatchToProps = {
+  moveCounterClockwise,
+  moveClockwise
+}; //this could just go directly in there but i dunno...
+
+export default connect(null, mapDispatchToProps)(Wheel)
