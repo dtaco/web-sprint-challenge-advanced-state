@@ -1,49 +1,68 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import { selectAnswer } from '../state/action-creators';
+import React, { useEffect } from 'react';
 
+import { connect } from 'react-redux';
+import { fetchQuiz, postAnswer, selectAnswer } from '../state/action-creators';
 
 function Quiz(props) {
-  const handleAnswerClick = (idx) => {
-    props.selectAnswer(idx);
+  //deconstruct my props here
+  const { quiz, selectedAnswer, fetchQuiz, postAnswer, selectAnswer } = props
+
+  //had to implement this useEffect to help with the fetch
+  useEffect(() => {
+    if (!quiz) {
+      fetchQuiz();
+    }
+  }, []);
+
+  const handleSubmit = () => {
+    if (selectedAnswer !== null) {
+      const quizID = quiz.quiz_id;
+      const answerID = selectedAnswer === 1 ? quiz.answers[0].answer_id : quiz.answers[1].answer_id;
+      postAnswer(quizID, answerID);
+    }
   };
 
   return (
     <div id="wrapper">
-      <div id="quiz">
-        <h2>Quiz</h2>
-        {props.quiz ? (
-          <div>
-            <h3>{props.quiz.question}</h3>
-            <div id="quizAnswers">
-              {props.quiz.answers.map((answer, index) => (
-                <div
-                  className={`answer ${
-                    index === props.selectedAnswer ? "selected" : ""
-                  }`}
-                  key={index}
-                >
-                  {answer.text}
-                  <button onClick={() => handleAnswerClick(index)}>
-                    {index === props.selectedAnswer ? "SELECTED" : "Select"}
-                  </button>
-                </div>
-              ))}
-            </div>
+      {quiz ? (
+        <>
+          <h2>{quiz.question}</h2>
+          <div id="quizAnswers">
+            {quiz.answers.map((answer, index) => (
+              <div
+                key={answer.answer_id}
+                className={`answer ${
+                  selectedAnswer === index + 1 ? 'selected' : ''
+                }`}
+              >
+                {answer.text}
+                <button onClick={() => selectAnswer(index + 1)}>
+                  {selectedAnswer === index + 1 ? 'SELECTED' : 'Select'}
+                </button>
+              </div>
+            ))}
           </div>
-        ) : (
-          "Loading next quiz..."
-        )}
-      </div>
+          <button
+            type="submit"
+            id="submitAnswerBtn"
+            onClick={handleSubmit}
+            disabled={selectedAnswer === null}
+          >
+            Submit answer
+          </button>
+        </>
+      ) : (
+        <div>Loading next quiz...</div>
+      )}
     </div>
   );
 }
 
-const mapStateToProps = (state) => {
-  return {
-    quiz: state.quiz,
-    selectedAnswer: state.selectedAnswer
-  }
-}
+const mapStateToProps = (state) => state; //Woah, this works so much better!!!!
 
-export default connect(mapStateToProps, { selectAnswer })(Quiz)
+const mapDispatchToProps = {
+  fetchQuiz, 
+  postAnswer, 
+  selectAnswer
+}
+export default connect(mapStateToProps, mapDispatchToProps)(Quiz);
