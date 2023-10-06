@@ -1,34 +1,49 @@
-import React from 'react'
+import React from 'react';
+import { connect } from 'react-redux';
+import { selectAnswer } from '../state/action-creators';
 
-export default function Quiz(props) {
+
+function Quiz(props) {
+  const handleAnswerClick = (idx) => {
+    props.selectAnswer(idx);
+  };
+
   return (
     <div id="wrapper">
-      {
-        // quiz already in state? Let's use that, otherwise render "Loading next quiz..."
-        true ? (
-          <>
-            <h2>What is a closure?</h2>
-
+      <div id="quiz">
+        <h2>Quiz</h2>
+        {props.quiz ? (
+          <div>
+            <h3>{props.quiz.question}</h3>
             <div id="quizAnswers">
-              <div className="answer selected">
-                A function
-                <button>
-                  SELECTED
-                </button>
-              </div>
-
-              <div className="answer">
-                An elephant
-                <button>
-                  Select
-                </button>
-              </div>
+              {props.quiz.answers.map((answer, index) => (
+                <div
+                  className={`answer ${
+                    index === props.selectedAnswer ? "selected" : ""
+                  }`}
+                  key={index}
+                >
+                  {answer.text}
+                  <button onClick={() => handleAnswerClick(index)}>
+                    {index === props.selectedAnswer ? "SELECTED" : "Select"}
+                  </button>
+                </div>
+              ))}
             </div>
-
-            <button id="submitAnswerBtn">Submit answer</button>
-          </>
-        ) : 'Loading next quiz...'
-      }
+          </div>
+        ) : (
+          "Loading next quiz..."
+        )}
+      </div>
     </div>
-  )
+  );
 }
+
+const mapStateToProps = (state) => {
+  return {
+    quiz: state.quiz,
+    selectedAnswer: state.selectedAnswer
+  }
+}
+
+export default connect(mapStateToProps, { selectAnswer })(Quiz)
