@@ -42,6 +42,7 @@ function Quiz(props) {
               </div>
             ))}
           </div>
+
           <button
             type="submit"
             id="submitAnswerBtn"
